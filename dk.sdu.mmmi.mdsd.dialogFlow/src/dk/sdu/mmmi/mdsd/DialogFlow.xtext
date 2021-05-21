@@ -1,0 +1,60 @@
+grammar dk.sdu.mmmi.mdsd.DialogFlow with org.eclipse.xtext.common.Terminals
+
+generate dialogFlow "http://www.sdu.dk/mmmi/mdsd/DialogFlow"
+	
+DialogFlowSystem:
+	'system' name=ID declarations+=Declaration*
+;
+
+Declaration:
+	Intent | Entity
+;
+
+Intent:
+	'intent' name=ID phrase=Phrases response=Responses (action=Actions)?
+;
+
+Phrases:
+	{Phrases} 'phrases' phrases+=PhraseValue* //require min 10 N's
+;
+
+PhraseValue:
+	'expression' mapping+=Mapping (',' mapping+=Mapping)*
+;
+
+Mapping:
+	value=STRING ('as' entity=[Entity])?   
+;
+
+Responses:
+	{Responses} 'responses' responses+=ResponseValue*
+;
+
+ResponseValue:
+	'reply' response=STRING 
+;
+
+
+Actions:
+	 {Actions} 'actions' actions+=ActionValue*
+;
+
+ActionValue:
+	'param' name=ID 'type' type=[Entity] value=STRING (list=ActionValueIsList)?
+;
+
+ActionValueIsList:
+	'islist'
+;
+
+Entity:
+	'entity' name=ID entities+=EntityValue*
+;
+
+EntityValue:
+	'reference' value=STRING (('synonym'|'synonyms') synonyms=EntitySynonyms)?
+;
+
+EntitySynonyms:
+	{EntitySynonyms} values+=STRING (',' values+=STRING )*
+;
