@@ -3,7 +3,7 @@ grammar dk.sdu.mmmi.mdsd.DialogFlow with org.eclipse.xtext.common.Terminals
 generate dialogFlow "http://www.sdu.dk/mmmi/mdsd/DialogFlow"
 
 Systems:
-	system+=DialogFlowSystem*
+	systemList+=DialogFlowSystem*
 ;
 
 DialogFlowSystem:

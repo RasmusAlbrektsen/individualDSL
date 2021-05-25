@@ -10,6 +10,7 @@ import org.eclipse.xtext.generator.IGeneratorContext
 import dk.sdu.mmmi.mdsd.dialogFlow.DialogFlowSystem
 import dk.sdu.mmmi.mdsd.dialogFlow.Entity
 import dk.sdu.mmmi.mdsd.dialogFlow.Intent
+import org.eclipse.emf.common.util.EList
 
 /**
  * Generates code from your model files on save.
@@ -21,25 +22,38 @@ class DialogFlowGenerator extends AbstractGenerator {
 	override void doGenerate(Resource resource, IFileSystemAccess2 fsa, IGeneratorContext context) {
 		resource.allContents.filter(DialogFlowSystem).forEach[generateSystem(resource, fsa)]
 		
-		
 	}
 	
 	def generateSystem(DialogFlowSystem system, Resource resource, IFileSystemAccess2 fsa) {
+		val systemDeclarations = system.declarations
+
+		
+		
 		
 		val rootElementCreator = new RootElementCreator(system.name)
 		rootElementCreator.generateElements(system, fsa)
-		system.declarations
-		
 		
 		val entityCreator = new EntityCreator(system.name)
-		for (e: resource.allContents.toIterable.filter(Entity)) {
-			entityCreator.generateEntity(e, fsa)
-		}
-
 		val intentCreator = new IntentCreator(system.name)
-		for (i: resource.allContents.toIterable.filter(Intent)) {
-			intentCreator.generateIntent(i, fsa)
+		for(d: systemDeclarations) {
+			if(d instanceof Entity) {
+				entityCreator.generateEntity(d, fsa)
+			} else if(d instanceof Intent) {
+				intentCreator.generateIntent(d, fsa)
+			}
+		}
+		if(system.superSystem !== null) {
+			val superSystem = system.superSystem
+			val superDeclarations = superSystem.declarations	
+			for(d: superDeclarations) {
+			if(d instanceof Entity) {
+				entityCreator.generateEntity(d, fsa)
+			} else if(d instanceof Intent) {
+				intentCreator.generateIntent(d, fsa)
+			}
+		}
+		}
+		
 	}
 	
-	}
 }
