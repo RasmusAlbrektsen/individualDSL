@@ -1,0 +1,44 @@
+system BookingAgent
+	entity payment_currency
+		reference "USD"
+		reference "DKK"
+		reference "EUR"
+	intent Welcome 
+    	phrases
+      		expression "Hello" 
+      		expression "Hi"
+	responses 
+		reply "Welcome. I can help you book book what you need?"
+		reply "Hello. Would you like to book something?"	
+
+system RestaurantBooking extends BookingAgent
+	entity restaurant_name
+		reference "McDonalds"
+		reference "Burger King"
+	intent book
+		phrases
+			expression "book a table", "McDonalds" as restaurant_name	
+		responses
+			reply  "Okay I have booked a table at $restaurant_name"
+			
+system TravelBooking extends BookingAgent
+	entity star 
+    	reference "1" synonyms "1 or more", "1 star" 
+    	reference "2" synonyms "2 or more", "2 star"
+	entity venue_accommodation_type
+		reference "hotel" synonym "hotels"
+		reference "motel" synonym "motels"
+		reference "apartment" synonym "apartments"
+		
+system HotelBooking extends TravelBooking
+	entity venue_accommodation_chain 
+		reference "Hilton" synonym "The Hilton"
+		reference "Hilton one" synonym "Hotel two"
+	intent Book
+		phrases
+			expression "book suite in ", "Hilton" as venue_accommodation_chain 
+	responses 
+		reply "I need some more information."
+		reply  "Okay I have booked a room at $venue-chain for you"
+	actions 
+		param venue_chain type venue_accommodation_chain "venue-chain"

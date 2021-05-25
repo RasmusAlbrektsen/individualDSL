@@ -19,19 +19,27 @@ import dk.sdu.mmmi.mdsd.dialogFlow.Intent
 class DialogFlowGenerator extends AbstractGenerator {
 
 	override void doGenerate(Resource resource, IFileSystemAccess2 fsa, IGeneratorContext context) {
-		val baseSystem = resource.allContents.filter(DialogFlowSystem).next
-
-		val rootElementCreator = new RootElementCreator(baseSystem.name)
-		rootElementCreator.generateElements(baseSystem, fsa)
+		resource.allContents.filter(DialogFlowSystem).forEach[generateSystem(resource, fsa)]
 		
-		val entityCreator = new EntityCreator(baseSystem.name)
+		
+	}
+	
+	def generateSystem(DialogFlowSystem system, Resource resource, IFileSystemAccess2 fsa) {
+		
+		val rootElementCreator = new RootElementCreator(system.name)
+		rootElementCreator.generateElements(system, fsa)
+		system.declarations
+		
+		
+		val entityCreator = new EntityCreator(system.name)
 		for (e: resource.allContents.toIterable.filter(Entity)) {
 			entityCreator.generateEntity(e, fsa)
 		}
 
-		val intentCreator = new IntentCreator(baseSystem.name)
+		val intentCreator = new IntentCreator(system.name)
 		for (i: resource.allContents.toIterable.filter(Intent)) {
 			intentCreator.generateIntent(i, fsa)
-		}
+	}
+	
 	}
 }
