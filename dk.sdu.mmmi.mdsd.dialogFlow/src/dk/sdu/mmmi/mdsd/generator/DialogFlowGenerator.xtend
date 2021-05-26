@@ -11,6 +11,7 @@ import dk.sdu.mmmi.mdsd.dialogFlow.DialogFlowSystem
 import dk.sdu.mmmi.mdsd.dialogFlow.Entity
 import dk.sdu.mmmi.mdsd.dialogFlow.Intent
 import org.eclipse.emf.common.util.EList
+import java.util.List
 
 /**
  * Generates code from your model files on save.
@@ -20,19 +21,71 @@ import org.eclipse.emf.common.util.EList
 class DialogFlowGenerator extends AbstractGenerator {
 
 	override void doGenerate(Resource resource, IFileSystemAccess2 fsa, IGeneratorContext context) {
-		resource.allContents.filter(DialogFlowSystem).forEach[generateSystem(resource, fsa)]
+		val systemList = resource.allContents.filter(DialogFlowSystem).toList
+		
+		for(system: systemList) {
+			val rootElementCreator = new RootElementCreator(system.name)
+			rootElementCreator.generateElements(system, fsa)
+		
+			val entityCreator = new EntityCreator(system.name)
+			val intentCreator = new IntentCreator(system.name)
+			
+			val systemDeclarations = system.declarations
+			
+			for(d: systemDeclarations) {
+				if(d instanceof Entity) {
+					entityCreator.generateEntity(d, fsa)
+				} else if(d instanceof Intent) {
+					intentCreator.generateIntent(d, fsa)
+				}
+			}
+			
+			if(system.superSystem !== null) {
+				identifySupers(system.superSystem, systemList, entityCreator, intentCreator, fsa)
+			}
+			
+			generateSystem(system, resource, fsa)
+			
+			
+			
+		}
+		
+		// LAV EN LIST OVER SYSTEMERNE HER SOMEHOW OG FIND UD AF AT GENERERE ALTING TIL DEM
 		
 	}
 	
-	def generateSystem(DialogFlowSystem system, Resource resource, IFileSystemAccess2 fsa) {
+	def identifySupers(DialogFlowSystem superSystem, List<DialogFlowSystem> systemList,
+		EntityCreator entityCreator, IntentCreator intentCreator, IFileSystemAccess2 fsa) {
+			
+		generateSuperArtefacts(superSystem, entityCreator, intentCreator, fsa)
+			
+		if(superSystem.superSystem !== null) {
+			identifySupers(superSystem.superSystem, systemList, entityCreator, intentCreator, fsa)
+		} 
+			
+	}
+	
+	def generateSuperArtefacts(DialogFlowSystem system, EntityCreator entityCreator,
+		IntentCreator intentCreator, IFileSystemAccess2 fsa) {
+			
 		val systemDeclarations = system.declarations
 
+		for(d: systemDeclarations) {
+			if(d instanceof Entity) {
+				entityCreator.generateEntity(d, fsa)
+			} else if(d instanceof Intent) {
+				intentCreator.generateIntent(d, fsa)
+			}
+		}
 		
 		
+	}
+	
+	
+	def generateSystem(DialogFlowSystem system, Resource resource, IFileSystemAccess2 fsa) {
 		
-		val rootElementCreator = new RootElementCreator(system.name)
-		rootElementCreator.generateElements(system, fsa)
-		
+		val systemDeclarations = system.declarations
+
 		val entityCreator = new EntityCreator(system.name)
 		val intentCreator = new IntentCreator(system.name)
 		for(d: systemDeclarations) {
@@ -42,18 +95,8 @@ class DialogFlowGenerator extends AbstractGenerator {
 				intentCreator.generateIntent(d, fsa)
 			}
 		}
-		if(system.superSystem !== null) {
-			val superSystem = system.superSystem
-			val superDeclarations = superSystem.declarations	
-			for(d: superDeclarations) {
-			if(d instanceof Entity) {
-				entityCreator.generateEntity(d, fsa)
-			} else if(d instanceof Intent) {
-				intentCreator.generateIntent(d, fsa)
-			}
-		}
-		}
-		
+	
 	}
+	
 	
 }
