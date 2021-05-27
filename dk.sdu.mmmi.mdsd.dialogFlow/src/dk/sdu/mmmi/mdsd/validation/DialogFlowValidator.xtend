@@ -12,6 +12,9 @@ import dk.sdu.mmmi.mdsd.dialogFlow.ResponseValue
 import org.eclipse.xtext.EcoreUtil2
 import dk.sdu.mmmi.mdsd.dialogFlow.Intent
 import java.util.ArrayList
+import java.util.HashSet
+import java.util.Set
+import org.eclipse.emf.ecore.EcorePackage.Literals
 
 /**
  * This class contains custom validation rules. 
@@ -55,4 +58,26 @@ class DialogFlowValidator extends AbstractDialogFlowValidator {
 			}
 		}
 	}
+	
+	@Check
+	def checkCyclicalInheritance(DialogFlowSystem system) {
+		val visited = new HashSet<DialogFlowSystem>
+		visited.add(system)
+		if(system.superSystem.hasSuper(visited)) {
+			error('Cyclic inheritance', DialogFlowPackage.Literals.DIALOG_FLOW_SYSTEM__SUPER_SYSTEM)
+		}
+	}
+	
+	def boolean hasSuper(DialogFlowSystem system, Set<DialogFlowSystem> visited) {
+		if(system === null) {
+			false
+		} else if(visited.contains(system)) {
+			true
+		} else {
+			visited.add(system)
+			system.superSystem.hasSuper(visited)
+		}
+	}
+	
+	
 }

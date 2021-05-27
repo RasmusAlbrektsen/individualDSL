@@ -18,6 +18,8 @@ import java.util.Collections
 import java.util.HashSet
 import java.util.ArrayList
 import dk.sdu.mmmi.mdsd.dialogFlow.Mapping
+import dk.sdu.mmmi.mdsd.dialogFlow.EntityValue
+import dk.sdu.mmmi.mdsd.dialogFlow.ActionValue
 
 /**
  * This class contains custom scoping description.
@@ -26,29 +28,21 @@ import dk.sdu.mmmi.mdsd.dialogFlow.Mapping
  * on how and when to use it.
  */
 class DialogFlowScopeProvider extends AbstractDialogFlowScopeProvider {
-	/*override IScope getScope(EObject context, EReference reference) {
-		switch context {
-			ResponseValue case reference==DialogFlowPackage.Literals.RESPONSE_VALUE : {
-				val entity = EcoreUtil2.getContainerOfType(context, Entity)
-				 
-				return Scopes.scopeFor(entity)
-			}
-		}
-		super.getScope(context, reference)
-	}*/
-	
+
 	override IScope getScope(EObject context, EReference reference) {
 		//Lets you find the declaration of a mapped Entity
+		
 		switch context {
 			Mapping case reference == DialogFlowPackage.Literals.MAPPING__ENTITY: {
 				val system = EcoreUtil2.getContainerOfType(context, DialogFlowSystem)
 				return Scopes.scopeFor(system.allEntities)
 		}
 		
+			ActionValue case reference == DialogFlowPackage.Literals.ACTION_VALUE__TYPE: {
+				val system = EcoreUtil2.getContainerOfType(context, DialogFlowSystem)
+				return Scopes.scopeFor(system.allActionValues)
+			}
 		
-			
-			
-			
 		}
 		
 		
@@ -56,18 +50,33 @@ class DialogFlowScopeProvider extends AbstractDialogFlowScopeProvider {
 	}
 	
 	def static List<Entity> allEntities(DialogFlowSystem system) {
-			val visited = new HashSet()
-			val entities = new ArrayList<Entity>
-			var s = system
-			while(s!==null) {
-				if(visited.contains(s)) {
-					return Collections.EMPTY_LIST
-				}
-				visited.add(s)
-				entities.addAll(s.declarations.filter(Entity))
-				s = s.superSystem
+		val visited = new HashSet()
+		val entities = new ArrayList<Entity>
+		var s = system
+		while(s!==null) {
+			if(visited.contains(s)) {
+				return Collections.EMPTY_LIST
 			}
-			return entities
+			visited.add(s)
+			entities.addAll(s.declarations.filter(Entity))
+			s = s.superSystem
 		}
+		return entities
+	}
+		
+	def static List<Entity> allActionValues(DialogFlowSystem system) {
+		val visited = new HashSet()
+		val entities = new ArrayList<Entity>
+		var s = system
+		while(s!==null) {
+			if(visited.contains(s)) {
+				return Collections.EMPTY_LIST
+			}
+			visited.add(s)
+			entities.addAll(s.declarations.filter(Entity))
+			s = s.superSystem
+		}
+		return entities
+	}
 		
 }
