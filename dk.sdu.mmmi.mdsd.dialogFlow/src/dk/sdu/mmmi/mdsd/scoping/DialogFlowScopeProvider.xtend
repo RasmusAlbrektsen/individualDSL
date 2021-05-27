@@ -11,6 +11,13 @@ import dk.sdu.mmmi.mdsd.dialogFlow.DialogFlowPackage
 import org.eclipse.xtext.EcoreUtil2
 import dk.sdu.mmmi.mdsd.dialogFlow.Entity
 import org.eclipse.xtext.scoping.Scopes
+import dk.sdu.mmmi.mdsd.dialogFlow.DialogFlowSystem
+import dk.sdu.mmmi.mdsd.dialogFlow.Declaration
+import java.util.List
+import java.util.Collections
+import java.util.HashSet
+import java.util.ArrayList
+import dk.sdu.mmmi.mdsd.dialogFlow.Mapping
 
 /**
  * This class contains custom scoping description.
@@ -29,4 +36,38 @@ class DialogFlowScopeProvider extends AbstractDialogFlowScopeProvider {
 		}
 		super.getScope(context, reference)
 	}*/
+	
+	override IScope getScope(EObject context, EReference reference) {
+		//Lets you find the declaration of a mapped Entity
+		switch context {
+			Mapping case reference == DialogFlowPackage.Literals.MAPPING__ENTITY: {
+				val system = EcoreUtil2.getContainerOfType(context, DialogFlowSystem)
+				return Scopes.scopeFor(system.allEntities)
+		}
+		
+		
+			
+			
+			
+		}
+		
+		
+		return super.getScope(context, reference)
+	}
+	
+	def static List<Entity> allEntities(DialogFlowSystem system) {
+			val visited = new HashSet()
+			val entities = new ArrayList<Entity>
+			var s = system
+			while(s!==null) {
+				if(visited.contains(s)) {
+					return Collections.EMPTY_LIST
+				}
+				visited.add(s)
+				entities.addAll(s.declarations.filter(Entity))
+				s = s.superSystem
+			}
+			return entities
+		}
+		
 }

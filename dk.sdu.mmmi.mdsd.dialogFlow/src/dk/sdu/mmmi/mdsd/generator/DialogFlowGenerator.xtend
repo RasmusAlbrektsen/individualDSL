@@ -10,7 +10,6 @@ import org.eclipse.xtext.generator.IGeneratorContext
 import dk.sdu.mmmi.mdsd.dialogFlow.DialogFlowSystem
 import dk.sdu.mmmi.mdsd.dialogFlow.Entity
 import dk.sdu.mmmi.mdsd.dialogFlow.Intent
-import org.eclipse.emf.common.util.EList
 import java.util.List
 
 /**
@@ -45,12 +44,7 @@ class DialogFlowGenerator extends AbstractGenerator {
 			}
 			
 			generateSystem(system, resource, fsa)
-			
-			
-			
 		}
-		
-		// LAV EN LIST OVER SYSTEMERNE HER SOMEHOW OG FIND UD AF AT GENERERE ALTING TIL DEM
 		
 	}
 	
@@ -62,7 +56,6 @@ class DialogFlowGenerator extends AbstractGenerator {
 		if(superSystem.superSystem !== null) {
 			identifySupers(superSystem.superSystem, systemList, entityCreator, intentCreator, fsa)
 		} 
-			
 	}
 	
 	def generateSuperArtefacts(DialogFlowSystem system, EntityCreator entityCreator,
@@ -77,8 +70,6 @@ class DialogFlowGenerator extends AbstractGenerator {
 				intentCreator.generateIntent(d, fsa)
 			}
 		}
-		
-		
 	}
 	
 	
@@ -97,6 +88,5 @@ class DialogFlowGenerator extends AbstractGenerator {
 		}
 	
 	}
-	
 	
 }
