@@ -16,17 +16,12 @@ import java.util.HashSet
 import java.util.Set
 import org.eclipse.emf.ecore.EcorePackage.Literals
 
-/**
- * This class contains custom validation rules. 
- *
- * See https://www.eclipse.org/Xtext/documentation/303_runtime_concepts.html#validation
- */
+
 class DialogFlowValidator extends AbstractDialogFlowValidator {
 	
 	@Check
 	def checkUniqueIntentAndEntityName(Declaration declaration) {
 		var system = EcoreUtil2.getContainerOfType(declaration, DialogFlowSystem);
-		
 		var timesFound = 0;
 		for (Declaration de : system.declarations) {
 			if (declaration.name.equals(de.name)) {
@@ -42,7 +37,6 @@ class DialogFlowValidator extends AbstractDialogFlowValidator {
 	@Check
 	def checkResponses(ResponseValue responseValue) {
 		var intent = EcoreUtil2.getContainerOfType(responseValue, Intent);
-			
 		var actionValues = new ArrayList<String>();
 		for (ActionValue action : intent.action.actions) {
 			actionValues.add(action.value);

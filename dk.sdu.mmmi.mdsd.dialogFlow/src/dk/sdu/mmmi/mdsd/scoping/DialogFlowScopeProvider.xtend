@@ -44,8 +44,6 @@ class DialogFlowScopeProvider extends AbstractDialogFlowScopeProvider {
 			}
 		
 		}
-		
-		
 		return super.getScope(context, reference)
 	}
 	

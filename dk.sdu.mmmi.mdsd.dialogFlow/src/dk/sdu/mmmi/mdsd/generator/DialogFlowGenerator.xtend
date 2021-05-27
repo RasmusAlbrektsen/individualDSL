@@ -28,22 +28,11 @@ class DialogFlowGenerator extends AbstractGenerator {
 		
 			val entityCreator = new EntityCreator(system.name)
 			val intentCreator = new IntentCreator(system.name)
-			
-			val systemDeclarations = system.declarations
-			
-			for(d: systemDeclarations) {
-				if(d instanceof Entity) {
-					entityCreator.generateEntity(d, fsa)
-				} else if(d instanceof Intent) {
-					intentCreator.generateIntent(d, fsa)
-				}
-			}
-			
+
 			if(system.superSystem !== null) {
 				identifySupers(system.superSystem, systemList, entityCreator, intentCreator, fsa)
 			}
-			
-			generateSystem(system, resource, fsa)
+			generateArtefacts(system, entityCreator, intentCreator, fsa)
 		}
 		
 	}
@@ -51,14 +40,14 @@ class DialogFlowGenerator extends AbstractGenerator {
 	def identifySupers(DialogFlowSystem superSystem, List<DialogFlowSystem> systemList,
 		EntityCreator entityCreator, IntentCreator intentCreator, IFileSystemAccess2 fsa) {
 			
-		generateSuperArtefacts(superSystem, entityCreator, intentCreator, fsa)
+		generateArtefacts(superSystem, entityCreator, intentCreator, fsa)
 			
 		if(superSystem.superSystem !== null) {
 			identifySupers(superSystem.superSystem, systemList, entityCreator, intentCreator, fsa)
 		} 
 	}
 	
-	def generateSuperArtefacts(DialogFlowSystem system, EntityCreator entityCreator,
+	def generateArtefacts(DialogFlowSystem system, EntityCreator entityCreator,
 		IntentCreator intentCreator, IFileSystemAccess2 fsa) {
 			
 		val systemDeclarations = system.declarations
@@ -71,22 +60,4 @@ class DialogFlowGenerator extends AbstractGenerator {
 			}
 		}
 	}
-	
-	
-	def generateSystem(DialogFlowSystem system, Resource resource, IFileSystemAccess2 fsa) {
-		
-		val systemDeclarations = system.declarations
-
-		val entityCreator = new EntityCreator(system.name)
-		val intentCreator = new IntentCreator(system.name)
-		for(d: systemDeclarations) {
-			if(d instanceof Entity) {
-				entityCreator.generateEntity(d, fsa)
-			} else if(d instanceof Intent) {
-				intentCreator.generateIntent(d, fsa)
-			}
-		}
-	
-	}
-	
 }
