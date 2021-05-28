@@ -12,18 +12,16 @@ import dk.sdu.mmmi.mdsd.dialogFlow.ResponseValue
 import org.eclipse.xtext.EcoreUtil2
 import dk.sdu.mmmi.mdsd.dialogFlow.Intent
 import java.util.ArrayList
+import java.util.HashSet
+import java.util.Set
+import org.eclipse.emf.ecore.EcorePackage.Literals
 
-/**
- * This class contains custom validation rules. 
- *
- * See https://www.eclipse.org/Xtext/documentation/303_runtime_concepts.html#validation
- */
+
 class DialogFlowValidator extends AbstractDialogFlowValidator {
 	
 	@Check
 	def checkUniqueIntentAndEntityName(Declaration declaration) {
 		var system = EcoreUtil2.getContainerOfType(declaration, DialogFlowSystem);
-		
 		var timesFound = 0;
 		for (Declaration de : system.declarations) {
 			if (declaration.name.equals(de.name)) {
@@ -39,7 +37,6 @@ class DialogFlowValidator extends AbstractDialogFlowValidator {
 	@Check
 	def checkResponses(ResponseValue responseValue) {
 		var intent = EcoreUtil2.getContainerOfType(responseValue, Intent);
-			
 		var actionValues = new ArrayList<String>();
 		for (ActionValue action : intent.action.actions) {
 			actionValues.add(action.value);
@@ -55,4 +52,26 @@ class DialogFlowValidator extends AbstractDialogFlowValidator {
 			}
 		}
 	}
+	
+	@Check
+	def checkCyclicalInheritance(DialogFlowSystem system) {
+		val visited = new HashSet<DialogFlowSystem>
+		visited.add(system)
+		if(system.superSystem.hasSuper(visited)) {
+			error('Cyclic inheritance', DialogFlowPackage.Literals.DIALOG_FLOW_SYSTEM__SUPER_SYSTEM)
+		}
+	}
+	
+	def boolean hasSuper(DialogFlowSystem system, Set<DialogFlowSystem> visited) {
+		if(system === null) {
+			false
+		} else if(visited.contains(system)) {
+			true
+		} else {
+			visited.add(system)
+			system.superSystem.hasSuper(visited)
+		}
+	}
+	
+	
 }

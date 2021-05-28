@@ -3,7 +3,7 @@ system Booking
     reference "Hilton" 
     reference "Hilton one" synonym "Hotel two"
   entity venue_accomodation_type
-    reference "apartment” synonyms “apartments"
+    reference "apartment" synonym "apartments"
     reference "hotel" synonym "hotels" 
     reference "motel" synonym "motels" 
   entity star 

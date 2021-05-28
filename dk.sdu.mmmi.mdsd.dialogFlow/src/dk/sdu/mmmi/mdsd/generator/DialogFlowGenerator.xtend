@@ -10,6 +10,7 @@ import org.eclipse.xtext.generator.IGeneratorContext
 import dk.sdu.mmmi.mdsd.dialogFlow.DialogFlowSystem
 import dk.sdu.mmmi.mdsd.dialogFlow.Entity
 import dk.sdu.mmmi.mdsd.dialogFlow.Intent
+import java.util.List
 
 /**
  * Generates code from your model files on save.
@@ -19,19 +20,44 @@ import dk.sdu.mmmi.mdsd.dialogFlow.Intent
 class DialogFlowGenerator extends AbstractGenerator {
 
 	override void doGenerate(Resource resource, IFileSystemAccess2 fsa, IGeneratorContext context) {
-		val baseSystem = resource.allContents.filter(DialogFlowSystem).next
-
-		val rootElementCreator = new RootElementCreator(baseSystem.name)
-		rootElementCreator.generateElements(baseSystem, fsa)
+		val systemList = resource.allContents.filter(DialogFlowSystem).toList
 		
-		val entityCreator = new EntityCreator(baseSystem.name)
-		for (e: resource.allContents.toIterable.filter(Entity)) {
-			entityCreator.generateEntity(e, fsa)
-		}
+		for(system: systemList) {
+			val rootElementCreator = new RootElementCreator(system.name)
+			rootElementCreator.generateElements(system, fsa)
+		
+			val entityCreator = new EntityCreator(system.name)
+			val intentCreator = new IntentCreator(system.name)
 
-		val intentCreator = new IntentCreator(baseSystem.name)
-		for (i: resource.allContents.toIterable.filter(Intent)) {
-			intentCreator.generateIntent(i, fsa)
+			if(system.superSystem !== null) {
+				identifySupers(system.superSystem, systemList, entityCreator, intentCreator, fsa)
+			}
+			generateArtefacts(system, entityCreator, intentCreator, fsa)
+		}
+		
+	}
+	
+	def identifySupers(DialogFlowSystem superSystem, List<DialogFlowSystem> systemList,
+		EntityCreator entityCreator, IntentCreator intentCreator, IFileSystemAccess2 fsa) {
+			
+		generateArtefacts(superSystem, entityCreator, intentCreator, fsa)
+			
+		if(superSystem.superSystem !== null) {
+			identifySupers(superSystem.superSystem, systemList, entityCreator, intentCreator, fsa)
+		} 
+	}
+	
+	def generateArtefacts(DialogFlowSystem system, EntityCreator entityCreator,
+		IntentCreator intentCreator, IFileSystemAccess2 fsa) {
+			
+		val systemDeclarations = system.declarations
+
+		for(d: systemDeclarations) {
+			if(d instanceof Entity) {
+				entityCreator.generateEntity(d, fsa)
+			} else if(d instanceof Intent) {
+				intentCreator.generateIntent(d, fsa)
+			}
 		}
 	}
 }

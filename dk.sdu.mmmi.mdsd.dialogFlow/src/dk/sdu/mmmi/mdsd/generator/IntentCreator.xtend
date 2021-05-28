@@ -41,7 +41,7 @@ class IntentCreator {
 			    "data": [
 			    
 			    	«FOR value : expression.mapping SEPARATOR ','»
-						{
+			    	»	{
 							"text": "«value.value»",
 							«IF value.entity !== null»
 							"meta": "@«value.entity.name»",
@@ -55,7 +55,7 @@ class IntentCreator {
 			    "count": 0,
 			    "lang": "en",
 			    "updated": 0
-		  	}
+			}
 		  «ENDFOR»
 		]
 		'''
